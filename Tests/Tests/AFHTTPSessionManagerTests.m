@@ -559,4 +559,129 @@
     [manager invalidateSessionCancelingTasks:YES];
 }
 
+
+- (void)testAdditionalHTTPHeadersNotPresent {
+
+    NSURLSessionDataTask *dataTask;
+
+    dataTask = [self.manager GET:@""
+                      parameters:nil
+                        progress:nil
+                         success:nil
+                         failure:nil];
+
+    XCTAssertEqual(dataTask.originalRequest.allHTTPHeaderFields[@"testKey"], nil);
+
+    dataTask = [self.manager HEAD:@""
+                       parameters:nil
+                          success:nil
+                          failure:nil];
+
+    XCTAssertEqual(dataTask.originalRequest.allHTTPHeaderFields[@"testKey"], nil);
+
+    dataTask = [self.manager POST:@""
+                       parameters:nil
+                         progress:nil
+                          success:nil
+                          failure:nil];
+
+    XCTAssertEqual(dataTask.originalRequest.allHTTPHeaderFields[@"testKey"], nil);
+
+    dataTask = [self.manager POST:@""
+                      parameters:nil
+        constructingBodyWithBlock:nil
+                         progress:nil
+                          success:nil
+                          failure:nil];
+
+    XCTAssertEqual(dataTask.originalRequest.allHTTPHeaderFields[@"testKey"], nil);
+
+    dataTask = [self.manager PUT:@""
+                      parameters:nil
+                         success:nil
+                         failure:nil];
+
+    XCTAssertEqual(dataTask.originalRequest.allHTTPHeaderFields[@"testKey"], nil);
+
+    dataTask = [self.manager PATCH:@""
+                        parameters:nil
+                           success:nil
+                           failure:nil];
+
+    XCTAssertEqual(dataTask.originalRequest.allHTTPHeaderFields[@"testKey"], nil);
+
+    dataTask = [self.manager DELETE:@""
+                         parameters:nil
+                            success:nil
+                            failure:nil];
+
+    XCTAssertEqual(dataTask.originalRequest.allHTTPHeaderFields[@"testKey"], nil);
+}
+
+- (void)testAdditionalHTTPHeadersPresent {
+
+    NSURLSessionDataTask *dataTask;
+
+    dataTask = [self.manager GET:@""
+           additionalHTTPHeaders:@{ @"testKey" : @"testValue" }
+                      parameters:nil
+                        progress:nil
+                         success:nil
+                         failure:nil];
+
+    XCTAssertEqual(dataTask.originalRequest.allHTTPHeaderFields[@"testKey"], @"testValue");
+
+    dataTask = [self.manager HEAD:@""
+            additionalHTTPHeaders:@{ @"testKey" : @"testValue" }
+                       parameters:nil
+                          success:nil
+                          failure:nil];
+
+    XCTAssertEqual(dataTask.originalRequest.allHTTPHeaderFields[@"testKey"], @"testValue");
+
+    dataTask = [self.manager POST:@""
+            additionalHTTPHeaders:@{ @"testKey" : @"testValue" }
+                       parameters:nil
+                         progress:nil
+                          success:nil
+                          failure:nil];
+
+    XCTAssertEqual(dataTask.originalRequest.allHTTPHeaderFields[@"testKey"], @"testValue");
+
+    dataTask = [self.manager POST:@""
+            additionalHTTPHeaders:@{ @"testKey" : @"testValue" }
+                       parameters:nil
+        constructingBodyWithBlock:nil
+                         progress:nil
+                          success:nil
+                          failure:nil];
+
+    XCTAssertEqual(dataTask.originalRequest.allHTTPHeaderFields[@"testKey"], @"testValue");
+
+    dataTask = [self.manager PUT:@""
+           additionalHTTPHeaders:@{ @"testKey" : @"testValue" }
+                      parameters:nil
+                         success:nil
+                         failure:nil];
+
+    XCTAssertEqual(dataTask.originalRequest.allHTTPHeaderFields[@"testKey"], @"testValue");
+
+    dataTask = [self.manager PATCH:@""
+             additionalHTTPHeaders:@{ @"testKey" : @"testValue" }
+                        parameters:nil
+                           success:nil
+                           failure:nil];
+
+    XCTAssertEqual(dataTask.originalRequest.allHTTPHeaderFields[@"testKey"], @"testValue");
+
+    dataTask = [self.manager DELETE:@""
+              additionalHTTPHeaders:@{ @"testKey" : @"testValue" }
+                         parameters:nil
+                            success:nil
+                            failure:nil];
+
+    XCTAssertEqual(dataTask.originalRequest.allHTTPHeaderFields[@"testKey"], @"testValue");
+}
+
+
 @end
