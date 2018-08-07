@@ -87,6 +87,8 @@ NS_ASSUME_NONNULL_BEGIN
 
  If a success block is specified, it is the responsibility of the block to set the image of the image view before returning. If no success block is specified, the default behavior of setting the image with `self.image = image` is applied.
 
+ Note that the NSURLRequest retrieved by the completion blocks can be different from the original request, since it can be mutated to inject the current HTTP Headers in the configured requestSerializer
+
  @param urlRequest The URL request used for the image request.
  @param placeholderImage The image to be set initially, until the image request finishes. If `nil`, the image view will not change its image until the image request finishes.
  @param success A block to be executed when the image data task finishes successfully. This block has no return value and takes three arguments: the request sent from the client, the response received from the server, and the image created from the response data of request. If the image was returned from cache, the response parameter will be `nil`.

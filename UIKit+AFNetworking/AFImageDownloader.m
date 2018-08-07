@@ -200,14 +200,17 @@
                                                   withReceiptID:(nonnull NSUUID *)receiptID
                                                         success:(nullable void (^)(NSURLRequest *request, NSHTTPURLResponse  * _Nullable response, UIImage *responseObject))success
                                                         failure:(nullable void (^)(NSURLRequest *request, NSHTTPURLResponse * _Nullable response, NSError *error))failure {
+
+    NSURLRequest *serializedRequest = [self.sessionManager.requestSerializer requestBySerializingRequest:request withParameters:nil error:nil];
+
     __block NSURLSessionDataTask *task = nil;
     dispatch_sync(self.synchronizationQueue, ^{
-        NSString *URLIdentifier = request.URL.absoluteString;
+        NSString *URLIdentifier = serializedRequest.URL.absoluteString;
         if (URLIdentifier == nil) {
             if (failure) {
                 NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorBadURL userInfo:nil];
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    failure(request, nil, error);
+                    failure(serializedRequest, nil, error);
                 });
             }
             return;
@@ -223,15 +226,15 @@
         }
 
         // 2) Attempt to load the image from the image cache if the cache policy allows it
-        switch (request.cachePolicy) {
+        switch (serializedRequest.cachePolicy) {
             case NSURLRequestUseProtocolCachePolicy:
             case NSURLRequestReturnCacheDataElseLoad:
             case NSURLRequestReturnCacheDataDontLoad: {
-                UIImage *cachedImage = [self.imageCache imageforRequest:request withAdditionalIdentifier:nil];
+                UIImage *cachedImage = [self.imageCache imageforRequest:serializedRequest withAdditionalIdentifier:nil];
                 if (cachedImage != nil) {
                     if (success) {
                         dispatch_async(dispatch_get_main_queue(), ^{
-                            success(request, nil, cachedImage);
+                            success(serializedRequest, nil, cachedImage);
                         });
                     }
                     return;
@@ -248,7 +251,7 @@
         __weak __typeof__(self) weakSelf = self;
 
         createdTask = [self.sessionManager
-                       dataTaskWithRequest:request
+                       dataTaskWithRequest:serializedRequest
                        uploadProgress:nil
                        downloadProgress:nil
                        completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
@@ -261,19 +264,19 @@
                                        for (AFImageDownloaderResponseHandler *handler in mergedTask.responseHandlers) {
                                            if (handler.failureBlock) {
                                                dispatch_async(dispatch_get_main_queue(), ^{
-                                                   handler.failureBlock(request, (NSHTTPURLResponse*)response, error);
+                                                   handler.failureBlock(serializedRequest, (NSHTTPURLResponse*)response, error);
                                                });
                                            }
                                        }
                                    } else {
-                                       if ([strongSelf.imageCache shouldCacheImage:responseObject forRequest:request withAdditionalIdentifier:nil]) {
-                                           [strongSelf.imageCache addImage:responseObject forRequest:request withAdditionalIdentifier:nil];
+                                       if ([strongSelf.imageCache shouldCacheImage:responseObject forRequest:serializedRequest withAdditionalIdentifier:nil]) {
+                                           [strongSelf.imageCache addImage:responseObject forRequest:serializedRequest withAdditionalIdentifier:nil];
                                        }
 
                                        for (AFImageDownloaderResponseHandler *handler in mergedTask.responseHandlers) {
                                            if (handler.successBlock) {
                                                dispatch_async(dispatch_get_main_queue(), ^{
-                                                   handler.successBlock(request, (NSHTTPURLResponse*)response, responseObject);
+                                                   handler.successBlock(serializedRequest, (NSHTTPURLResponse*)response, responseObject);
                                                });
                                            }
                                        }

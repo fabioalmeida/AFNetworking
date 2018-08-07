@@ -169,6 +169,40 @@
 
 }
 
+- (void)testThatSessionHTTPHeaderAreProperlySetOnRequest {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Request with proper HTTP Headers"];
 
+    __block NSURLRequest *successRequest;
+    __block NSHTTPURLResponse *successResponse;
+    __block UIImage *successImage;
+    __block NSError *successError;
+
+    [self.imageView setImageWithURLRequest:self.jpegURLRequest
+                          placeholderImage:nil
+                                   success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
+                                       successRequest = request;
+                                       successResponse = response;
+                                       successImage = image;
+                                       [expectation fulfill];
+                                   } failure:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, NSError * _Nonnull error) {
+                                       successRequest = request;
+                                       successResponse = response;
+                                       successError = error;
+                                       [expectation fulfill];
+                                   }];
+
+    [self waitForExpectationsWithCommonTimeout];
+    XCTAssertNotNil(successRequest);
+    XCTAssertNotNil(successResponse);
+    XCTAssertNotNil(successImage);
+    XCTAssertNil(successError);
+
+    AFHTTPRequestSerializer *requestSerializer = [UIImageView sharedImageDownloader].sessionManager.requestSerializer;
+
+    XCTAssertTrue(requestSerializer.HTTPRequestHeaders.count > 0);
+    XCTAssertNil(self.jpegURLRequest.allHTTPHeaderFields[@"User-Agent"]);
+    XCTAssertNotNil(successRequest.allHTTPHeaderFields[@"User-Agent"]);
+    XCTAssertEqual(successRequest.allHTTPHeaderFields[@"User-Agent"], requestSerializer.HTTPRequestHeaders[@"User-Agent"]);
+}
 
 @end
