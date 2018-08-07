@@ -198,7 +198,20 @@
     [self waitForExpectationsWithCommonTimeout];
     XCTAssertNotNil(urlResponse);
     XCTAssertNotNil(responseImage);
+}
 
+- (void)testThatItCanDownloadAndSerializeJP2Images {
+    NSString *imageURLString = @"https://github.com/bitsgalore/jp2kMagic/blob/master/sampleImages/balloon.jp2?raw=true";
+    XCTestExpectation *expectation = [self expectationWithDescription:[NSString stringWithFormat:@"Request %@ should succeed", imageURLString]];
+    [self.downloader
+     downloadImageForURLRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:imageURLString]]
+     success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull responseObject) {
+         [expectation fulfill];
+         XCTAssertNotNil(responseObject);
+     } failure:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, NSError * _Nonnull error) {
+         XCTFail(@"Request %@ failed with error %@", request, error);
+     }];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 #pragma mark - Caching

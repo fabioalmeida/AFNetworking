@@ -223,6 +223,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  - `image/tiff`
  - `image/jpeg`
+ - `image/jp2`
  - `image/gif`
  - `image/png`
  - `image/ico`
